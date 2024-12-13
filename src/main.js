@@ -1,24 +1,64 @@
 import './style.css'
-import javascriptLogo from './javascript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.js'
 
 document.querySelector('#app').innerHTML = `
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-      <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
-    </a>
-    <h1>Hello Vite!</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
+    <div>
+        <input type="number" id="time-input" placeholder="Введите время в секундах">
+        <button id="add-timer">Добавить таймер</button>
     </div>
-    <p class="read-the-docs">
-      Click on the Vite logo to learn more
-    </p>
-  </div>
-`
+    <ul id="timers">
+        <!-- Таймеры будут добавляться сюда -->
+    </ul>
+`;
 
-setupCounter(document.querySelector('#counter'))
+const startTimer = (timeValue, timerText, removeTimer) => {
+  let timer = timeValue;
+  const intervalId = setInterval(() => {
+    timerText.textContent = `Таймер: ${timer} секунд`;
+      
+      if (timer > 0) {
+        timer--;
+      } else {
+        clearInterval(intervalId);
+        removeTimer();
+      }
+  }, 1000);
+
+  return () => {
+    clearInterval(intervalId);
+    removeTimer();
+  };
+};
+
+document.querySelector('#add-timer').addEventListener('click', () => {
+  const timeInput = document.querySelector('#time-input');
+  const timeValue = parseInt(timeInput.value.trim(), 10);
+
+  if (timeValue > 0) {
+    const timersList = document.querySelector('#timers');
+
+    const timerItem = document.createElement('li');
+    const timerText = document.createElement('span');
+    const removeButton = document.createElement('button');
+    
+    timerText.textContent = `Таймер: ${timeValue} секунд`;
+    removeButton.textContent = 'Удалить';
+
+    timerItem.appendChild(timerText);
+    timerItem.appendChild(removeButton);
+    timersList.appendChild(timerItem);
+
+    const removeTimer = () => {
+      timerItem.remove();
+    };
+
+    const stopTimer = startTimer(timeValue, timerText, removeTimer);
+
+    removeButton.addEventListener('click', () => {
+      stopTimer();
+    });
+
+    timeInput.value = '';
+  } else {
+    alert('Введите время работы таймера');
+  }
+});
